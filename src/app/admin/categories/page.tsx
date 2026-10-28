@@ -72,10 +72,10 @@ export default function AdminCategoriesPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">分类管理</h1>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <h1 className="font-display text-2xl font-bold tracking-tight">分类管理</h1>
+      {error && <p className="text-sm text-accent">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-3 rounded border p-4">
+      <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-line bg-white p-4">
         <h2 className="font-bold">新增分类</h2>
         <div>
           <label className="mb-1 block text-sm">名称</label>
@@ -83,7 +83,7 @@ export default function AdminCategoriesPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full rounded border px-3 py-2"
+            className="w-full rounded-lg border border-line bg-white px-3 py-2"
           />
         </div>
         <div>
@@ -91,13 +91,13 @@ export default function AdminCategoriesPage() {
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded border px-3 py-2"
+            className="w-full rounded-lg border border-line bg-white px-3 py-2"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="rounded bg-zinc-900 px-4 py-2 text-white disabled:opacity-50"
+          className="rounded bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-deep disabled:opacity-50"
         >
           {loading ? "创建中..." : "创建"}
         </button>
@@ -105,7 +105,7 @@ export default function AdminCategoriesPage() {
 
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b text-left">
+          <tr className="border-b border-line text-left">
             <th className="p-2">名称</th>
             <th className="p-2">Slug</th>
             <th className="p-2">商品数</th>
@@ -114,12 +114,12 @@ export default function AdminCategoriesPage() {
         </thead>
         <tbody>
           {categories.map((c) => (
-            <tr key={c.id} className="border-b">
+            <tr key={c.id} className="border-b border-line">
               <td className="p-2">{c.name}</td>
               <td className="p-2">{c.slug}</td>
               <td className="p-2">{c._count.products}</td>
               <td className="p-2">
-                <button onClick={() => handleDelete(c)} className="text-red-600 hover:underline">
+                <button onClick={() => handleDelete(c)} className="text-accent hover:underline">
                   删除
                 </button>
               </td>

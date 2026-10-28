@@ -9,31 +9,34 @@ export async function SiteHeader() {
   const user = await getCurrentUser();
 
   return (
-    <header className="sticky top-0 z-10 border-b bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-10 border-b border-line bg-paper/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4">
-        <Link href="/" className="text-xl font-bold">
+        <Link href="/" className="font-display text-xl font-bold tracking-tight text-ink">
           Mini Mall
         </Link>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/cart" className="hover:underline">
+        <nav className="flex items-center gap-5 text-sm text-muted">
+          <Link href="/cart" className="transition-colors hover:text-ink">
             购物车
           </Link>
           {user ? (
             <>
               {user.role === ROLES.ADMIN && (
-                <Link href="/admin/products" className="hover:underline">
+                <Link href="/admin/products" className="transition-colors hover:text-ink">
                   后台管理
                 </Link>
               )}
-              <span>{user.name}</span>
+              <span className="text-ink">{user.name}</span>
               <LogoutButton />
             </>
           ) : (
             <>
-              <Link href="/login" className="hover:underline">
+              <Link href="/login" className="transition-colors hover:text-ink">
                 登录
               </Link>
-              <Link href="/register" className="hover:underline">
+              <Link
+                href="/register"
+                className="rounded-full bg-primary px-4 py-1.5 text-white transition-colors hover:bg-primary-deep"
+              >
                 注册
               </Link>
             </>

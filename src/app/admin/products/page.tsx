@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 import { formatPrice } from "@/lib/utils";
 
@@ -33,24 +33,44 @@ export default function AdminProductsPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
-  async function load() {
+  const load = useCallback(async () => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (page > 1) params.set("page", String(page));
+    const qs = params.toString();
     const [pRes, cRes] = await Promise.all([
-      fetch("/api/admin/products"),
+      fetch(`/api/admin/products${qs ? `?${qs}` : ""}`),
       fetch("/api/admin/categories"),
     ]);
     if (pRes.ok) {
       const data = await pRes.json();
       setProducts(data.products);
+      setTotal(data.total);
+      setTotalPages(data.totalPages);
+      if (page > data.totalPages) {
+        setPage(data.totalPages);
+      }
     }
     if (cRes.ok) {
       setCategories(await cRes.json());
     }
-  }
+  }, [search, page]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
+
+  function handleSearch(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setPage(1);
+    setSearch(searchInput.trim());
+  }
 
   function openCreate() {
     setEditing(null);
@@ -131,16 +151,16 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">商品管理</h1>
-        <button onClick={openCreate} className="rounded bg-zinc-900 px-4 py-2 text-white">
+        <h1 className="font-display text-2xl font-bold tracking-tight">商品管理</h1>
+        <button onClick={openCreate} className="rounded bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-deep">
           新增商品
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-accent">{error}</p>}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="space-y-3 rounded border p-4">
+        <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-line bg-white p-4">
           <h2 className="font-bold">{editing ? "编辑商品" : "新增商品"}</h2>
           <div>
             <label className="mb-1 block text-sm">名称</label>
@@ -148,7 +168,7 @@ export default function AdminProductsPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full rounded border px-3 py-2"
+              className="w-full rounded-lg border border-line bg-white px-3 py-2"
             />
           </div>
           <div>
@@ -156,7 +176,7 @@ export default function AdminProductsPage() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded border px-3 py-2"
+              className="w-full rounded-lg border border-line bg-white px-3 py-2"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -169,7 +189,7 @@ export default function AdminProductsPage() {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 required
-                className="w-full rounded border px-3 py-2"
+                className="w-full rounded-lg border border-line bg-white px-3 py-2"
               />
             </div>
             <div>
@@ -181,7 +201,7 @@ export default function AdminProductsPage() {
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
                 required
-                className="w-full rounded border px-3 py-2"
+                className="w-full rounded-lg border border-line bg-white px-3 py-2"
               />
             </div>
           </div>
@@ -190,7 +210,7 @@ export default function AdminProductsPage() {
             <input
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full rounded border px-3 py-2"
+              className="w-full rounded-lg border border-line bg-white px-3 py-2"
             />
           </div>
           <div>
@@ -199,7 +219,7 @@ export default function AdminProductsPage() {
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               required
-              className="w-full rounded border px-3 py-2"
+              className="w-full rounded-lg border border-line bg-white px-3 py-2"
             >
               <option value="">请选择</option>
               {categories.map((c) => (
@@ -221,20 +241,32 @@ export default function AdminProductsPage() {
             <button
               type="submit"
               disabled={loading}
-              className="rounded bg-zinc-900 px-4 py-2 text-white disabled:opacity-50"
+              className="rounded bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-deep disabled:opacity-50"
             >
               {loading ? "保存中..." : "保存"}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="rounded border px-4 py-2">
+            <button type="button" onClick={() => setShowForm(false)} className="rounded-lg border border-line bg-white px-4 py-2">
               取消
             </button>
           </div>
         </form>
       )}
 
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <input
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="搜索商品名称"
+          className="flex-1 rounded-lg border border-line bg-white px-3 py-2"
+        />
+        <button type="submit" className="rounded bg-primary px-4 py-2 text-white transition-colors hover:bg-primary-deep">
+          搜索
+        </button>
+      </form>
+
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b text-left">
+          <tr className="border-b border-line text-left">
             <th className="p-2">名称</th>
             <th className="p-2">分类</th>
             <th className="p-2">价格</th>
@@ -245,18 +277,18 @@ export default function AdminProductsPage() {
         </thead>
         <tbody>
           {products.map((p) => (
-            <tr key={p.id} className="border-b">
+            <tr key={p.id} className="border-b border-line">
               <td className="p-2">{p.name}</td>
               <td className="p-2">{p.category.name}</td>
               <td className="p-2">{formatPrice(p.price)}</td>
               <td className="p-2">{p.stock}</td>
               <td className="p-2">{p.isActive ? "上架" : "已下架"}</td>
               <td className="p-2 space-x-2">
-                <button onClick={() => openEdit(p)} className="text-blue-600 hover:underline">
+                <button onClick={() => openEdit(p)} className="text-primary hover:underline">
                   编辑
                 </button>
                 {p.isActive && (
-                  <button onClick={() => handleDelete(p)} className="text-red-600 hover:underline">
+                  <button onClick={() => handleDelete(p)} className="text-accent hover:underline">
                     下架
                   </button>
                 )}
@@ -265,6 +297,29 @@ export default function AdminProductsPage() {
           ))}
         </tbody>
       </table>
+
+      <div className="flex items-center justify-between text-sm">
+        <span>共 {total} 个商品</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="rounded-lg border border-line bg-white px-3 py-1 disabled:opacity-50"
+          >
+            上一页
+          </button>
+          <span>
+            第 {page} / {totalPages} 页
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+            className="rounded-lg border border-line bg-white px-3 py-1 disabled:opacity-50"
+          >
+            下一页
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

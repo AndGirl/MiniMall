@@ -13,7 +13,7 @@ export function LogoutButton() {
   }
 
   return (
-    <button type="button" onClick={handleLogout} className="hover:underline">
+    <button type="button" onClick={handleLogout} className="transition-colors hover:text-ink">
       退出
     </button>
   );

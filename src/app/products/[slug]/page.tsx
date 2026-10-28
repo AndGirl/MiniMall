@@ -23,10 +23,10 @@ export default async function ProductDetail({
   return (
     <div>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-5xl px-4 py-8">
+      <main className="mx-auto w-full max-w-5xl px-4 py-10">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* 商品大图 */}
-          <div className="relative aspect-square overflow-hidden rounded-lg border bg-zinc-100">
+          <div className="relative aspect-square overflow-hidden rounded-lg border border-line bg-line/40">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -37,7 +37,7 @@ export default async function ProductDetail({
                 className="object-cover"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-zinc-400">
+              <div className="flex h-full items-center justify-center text-muted/70">
                 暂无图片
               </div>
             )}
@@ -45,13 +45,13 @@ export default async function ProductDetail({
 
           {/* 商品信息 */}
           <div className="space-y-4">
-            <p className="text-sm text-zinc-500">{product.category.name}</p>
-            <h1 className="text-2xl font-bold">{product.name}</h1>
-            <p className="text-3xl font-semibold text-red-600">
+            <p className="text-sm text-muted">{product.category.name}</p>
+            <h1 className="font-display text-3xl font-bold tracking-tight">{product.name}</h1>
+            <p className="font-display text-3xl font-semibold text-accent">
               {formatPrice(product.price)}
             </p>
-            <p className="text-zinc-600">{product.description ?? "暂无描述"}</p>
-            <p className="text-sm text-zinc-500">库存：{product.stock} 件</p>
+            <p className="text-muted">{product.description ?? "暂无描述"}</p>
+            <p className="text-sm text-muted">库存：{product.stock} 件</p>
 
             <AddToCartButton productId={product.id} slug={product.slug} inStock={inStock} />
           </div>

@@ -33,11 +33,11 @@ export function PayButton({ orderId }: { orderId: string }) {
         type="button"
         onClick={handlePay}
         disabled={loading}
-        className="rounded bg-zinc-900 px-6 py-3 text-white disabled:opacity-50"
+        className="rounded-lg bg-primary px-6 py-3 text-white transition-colors hover:bg-primary-deep disabled:opacity-50"
       >
         {loading ? "支付中..." : "模拟支付"}
       </button>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-accent">{error}</p>}
     </div>
   );
 }

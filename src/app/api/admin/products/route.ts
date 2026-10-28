@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     prisma.product.count({ where }),
   ]);
 
-  return NextResponse.json({ products, total, page, totalPages: Math.ceil(total / PAGE_SIZE) });
+  return NextResponse.json({ products, total, page, totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)) });
 }
 
 // POST /api/admin/products — 创建商品
@@ -58,6 +58,7 @@ export async function POST(request: NextRequest) {
   const stock = Number(body.stock);
   const imageUrl = typeof body.imageUrl === "string" ? body.imageUrl.trim() : "";
   const categoryId = typeof body.categoryId === "string" ? body.categoryId : "";
+  const isActive = typeof body.isActive === "boolean" ? body.isActive : true;
 
   if (!name) {
     return NextResponse.json({ error: "请输入商品名称" }, { status: 400 });
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest) {
       stock,
       imageUrl: imageUrl || null,
       categoryId,
+      isActive,
     },
   });
 

@@ -36,20 +36,22 @@ export async function PUT(
     return NextResponse.json({ error: "订单不存在" }, { status: 404 });
   }
 
-  const allowed = ORDER_STATUS_TRANSITIONS[order.status as OrderStatus];
+  const from = order.status as OrderStatus;
+  const allowed = ORDER_STATUS_TRANSITIONS[from] ?? [];
   if (!allowed.includes(target)) {
     return NextResponse.json({ error: "不允许的状态变更" }, { status: 400 });
   }
 
-  // 取消时回补库存（用条件更新防重复取消导致重复回补）
+  // 条件更新锁定「读取时的状态」，防止并发下覆盖已变更状态（TOCTOU）
   if (target === "CANCELLED") {
-    await prisma.$transaction(async (tx) => {
+    // 取消回补库存：事务内先条件置为已取消，命中才回补
+    const restored = await prisma.$transaction(async (tx) => {
       const result = await tx.order.updateMany({
-        where: { id, status: { not: "CANCELLED" } },
+        where: { id, status: from },
         data: { status: "CANCELLED" },
       });
       if (result.count === 0) {
-        return; // 已被取消，跳过回补
+        return false; // 状态已被并发变更，跳过回补
       }
       for (const item of order.items) {
         await tx.product.update({
@@ -57,9 +59,19 @@ export async function PUT(
           data: { stock: { increment: item.quantity } },
         });
       }
+      return true;
     });
+    if (!restored) {
+      return NextResponse.json({ error: "订单状态已变更，请刷新" }, { status: 400 });
+    }
   } else {
-    await prisma.order.update({ where: { id }, data: { status: target } });
+    const result = await prisma.order.updateMany({
+      where: { id, status: from },
+      data: { status: target },
+    });
+    if (result.count === 0) {
+      return NextResponse.json({ error: "订单状态已变更，请刷新" }, { status: 400 });
+    }
   }
 
   const updated = await prisma.order.findUnique({

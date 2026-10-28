@@ -23,29 +23,29 @@ export default async function OrdersPage() {
   return (
     <div>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-4xl px-4 py-8">
-        <h1 className="mb-6 text-2xl font-bold">我的订单</h1>
+      <main className="mx-auto w-full max-w-4xl px-4 py-10">
+        <h1 className="mb-6 font-display text-3xl font-bold tracking-tight">我的订单</h1>
         {orders.length === 0 ? (
-          <p className="py-12 text-center text-zinc-500">暂无订单</p>
+          <p className="py-12 text-center text-muted">暂无订单</p>
         ) : (
-          <ul className="divide-y rounded border">
+          <ul className="divide-y divide-line rounded-lg border border-line bg-white">
             {orders.map((order) => (
               <li key={order.id}>
                 <Link
                   href={`/orders/${order.id}`}
-                  className="flex items-center justify-between gap-4 p-4 hover:bg-zinc-50"
+                  className="flex items-center justify-between gap-4 p-4 transition-colors hover:bg-line/30"
                 >
                   <div>
-                    <p className="font-medium">{order.orderNumber}</p>
-                    <p className="text-sm text-zinc-500">
+                    <p className="font-medium text-ink">{order.orderNumber}</p>
+                    <p className="text-sm text-muted">
                       {order.createdAt.toLocaleString("zh-CN")}
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-sm text-zinc-500">
+                    <span className="text-sm text-muted">
                       {getOrderStatusLabel(order.status)}
                     </span>
-                    <span className="font-semibold text-red-600">
+                    <span className="font-display font-semibold text-accent">
                       {formatPrice(order.totalAmount)}
                     </span>
                   </div>

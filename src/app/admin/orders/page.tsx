@@ -63,11 +63,11 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">订单管理</h1>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <h1 className="font-display text-2xl font-bold tracking-tight">订单管理</h1>
+      {error && <p className="text-sm text-accent">{error}</p>}
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b text-left">
+          <tr className="border-b border-line text-left">
             <th className="p-2">订单号</th>
             <th className="p-2">用户</th>
             <th className="p-2">金额</th>
@@ -78,7 +78,7 @@ export default function AdminOrdersPage() {
         </thead>
         <tbody>
           {orders.map((o) => (
-            <tr key={o.id} className="border-b">
+            <tr key={o.id} className="border-b border-line">
               <td className="p-2">{o.orderNumber}</td>
               <td className="p-2">
                 {o.user.name}（{o.user.email}）
@@ -91,7 +91,7 @@ export default function AdminOrdersPage() {
                   <button
                     key={a.status}
                     onClick={() => updateStatus(o.id, a.status)}
-                    className="text-blue-600 hover:underline"
+                    className="text-primary hover:underline"
                   >
                     {a.label}
                   </button>

@@ -77,19 +77,19 @@ export function CartClient({ initialItems }: { initialItems: CartItemWithProduct
   }
 
   if (items.length === 0) {
-    return <p className="py-12 text-center text-zinc-500">购物车是空的</p>;
+    return <p className="py-12 text-center text-muted">购物车是空的</p>;
   }
 
   return (
     <div className="space-y-4">
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <ul className="divide-y rounded border">
+      {error && <p className="text-sm text-accent">{error}</p>}
+      <ul className="divide-y divide-line rounded-lg border border-line bg-white">
         {items.map((item) => {
           const outOfStock = item.quantity > item.product.stock;
           const lineTotal = item.product.price * item.quantity;
           return (
             <li key={item.id} className="flex items-center gap-4 p-4">
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded bg-zinc-100">
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded bg-line/40">
                 {item.product.imageUrl ? (
                   <Image
                     src={item.product.imageUrl}
@@ -99,16 +99,16 @@ export function CartClient({ initialItems }: { initialItems: CartItemWithProduct
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-xs text-zinc-400">
+                  <div className="flex h-full items-center justify-center text-xs text-muted/70">
                     暂无图片
                   </div>
                 )}
               </div>
 
               <div className="flex-1">
-                <p className="font-medium">{item.product.name}</p>
-                <p className="text-sm text-zinc-500">{formatPrice(item.product.price)}</p>
-                {outOfStock && <p className="text-xs text-red-600">库存不足</p>}
+                <p className="font-medium text-ink">{item.product.name}</p>
+                <p className="text-sm text-muted">{formatPrice(item.product.price)}</p>
+                {outOfStock && <p className="text-xs text-accent">库存不足</p>}
               </div>
 
               <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ export function CartClient({ initialItems }: { initialItems: CartItemWithProduct
                   type="button"
                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
                   disabled={loading || item.quantity <= 1}
-                  className="h-8 w-8 rounded border disabled:opacity-40"
+                  className="h-8 w-8 rounded border border-line disabled:opacity-40"
                 >
                   -
                 </button>
@@ -125,19 +125,21 @@ export function CartClient({ initialItems }: { initialItems: CartItemWithProduct
                   type="button"
                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                   disabled={loading || item.quantity >= item.product.stock}
-                  className="h-8 w-8 rounded border disabled:opacity-40"
+                  className="h-8 w-8 rounded border border-line disabled:opacity-40"
                 >
                   +
                 </button>
               </div>
 
-              <div className="w-24 text-right font-medium">{formatPrice(lineTotal)}</div>
+              <div className="w-24 text-right font-display font-medium text-ink">
+                {formatPrice(lineTotal)}
+              </div>
 
               <button
                 type="button"
                 onClick={() => removeItem(item.id)}
                 disabled={loading}
-                className="text-sm text-red-600 disabled:opacity-40"
+                className="text-sm text-accent disabled:opacity-40"
               >
                 删除
               </button>
@@ -148,13 +150,13 @@ export function CartClient({ initialItems }: { initialItems: CartItemWithProduct
 
       <div className="flex items-center justify-between">
         <span className="text-lg">
-          总价：<span className="font-semibold text-red-600">{formatPrice(total)}</span>
+          总价：<span className="font-display font-semibold text-accent">{formatPrice(total)}</span>
         </span>
         <button
           type="button"
           onClick={handleCheckout}
           disabled={loading}
-          className="rounded bg-zinc-900 px-6 py-3 text-white disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-3 text-white transition-colors hover:bg-primary-deep disabled:opacity-50"
         >
           {loading ? "提交中..." : "提交订单"}
         </button>

@@ -40,30 +40,35 @@ export default async function Home({ searchParams }: { searchParams: HomeSearchP
   return (
     <div>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-7xl px-4 py-6">
-        <h1 className="mb-6 text-2xl font-bold">商品列表</h1>
+      <main className="mx-auto w-full max-w-7xl px-4 py-10">
+        <h1 className="mb-8 font-display text-3xl font-bold tracking-tight">商品列表</h1>
 
         {/* 搜索框 */}
-        <form method="get" className="mb-4 flex gap-2">
+        <form method="get" className="mb-6 flex gap-2">
           {category && <input type="hidden" name="category" value={category} />}
           <input
             type="text"
             name="q"
             defaultValue={q}
             placeholder="搜索商品名称或描述"
-            className="flex-1 rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-300"
+            className="flex-1 rounded-lg border border-line bg-white px-4 py-2.5 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
-          <button type="submit" className="rounded-lg bg-zinc-900 px-4 py-2 text-white transition-colors hover:bg-zinc-700">
+          <button
+            type="submit"
+            className="rounded-lg bg-primary px-6 py-2.5 text-white transition-colors hover:bg-primary-deep"
+          >
             搜索
           </button>
         </form>
 
         {/* 分类标签 */}
-        <div className="mb-6 flex flex-wrap gap-2">
+        <div className="mb-8 flex flex-wrap gap-2">
           <Link
             href={buildHref({ q })}
-            className={`rounded-full px-3 py-1 text-sm ${
-              category ? "bg-zinc-100" : "bg-zinc-900 text-white"
+            className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+              category
+                ? "border-line bg-white text-muted hover:border-primary/40 hover:text-ink"
+                : "border-primary bg-primary text-white"
             }`}
           >
             全部
@@ -72,8 +77,10 @@ export default async function Home({ searchParams }: { searchParams: HomeSearchP
             <Link
               key={c.id}
               href={buildHref({ q, category: c.slug })}
-              className={`rounded-full px-3 py-1 text-sm ${
-                category === c.slug ? "bg-zinc-900 text-white" : "bg-zinc-100"
+              className={`rounded-full border px-4 py-1.5 text-sm transition-colors ${
+                category === c.slug
+                  ? "border-primary bg-primary text-white"
+                  : "border-line bg-white text-muted hover:border-primary/40 hover:text-ink"
               }`}
             >
               {c.name}（{c._count.products}）
@@ -83,34 +90,34 @@ export default async function Home({ searchParams }: { searchParams: HomeSearchP
 
         {/* 商品网格 */}
         {products.length === 0 ? (
-          <p className="py-12 text-center text-zinc-500">没有找到相关商品</p>
+          <p className="py-16 text-center text-muted">没有找到相关商品</p>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((p) => (
               <Link
                 key={p.id}
                 href={`/products/${p.slug}`}
-                className="group block overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
+                className="group block overflow-hidden rounded-lg border border-line bg-white transition-colors hover:border-primary/40"
               >
-                <div className="relative aspect-square overflow-hidden bg-zinc-100">
+                <div className="relative aspect-square overflow-hidden bg-line/40">
                   {p.imageUrl ? (
                     <Image
                       src={p.imageUrl}
                       alt={p.name}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition group-hover:scale-105"
+                      className="object-cover transition duration-300 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center text-zinc-400">
+                    <div className="flex h-full items-center justify-center text-muted/70">
                       暂无图片
                     </div>
                   )}
                 </div>
                 <div className="p-4">
-                  <p className="font-medium">{p.name}</p>
-                  <p className="text-sm text-zinc-500">{p.category.name}</p>
-                  <p className="mt-2 text-lg font-semibold text-red-600">
+                  <p className="font-medium text-ink">{p.name}</p>
+                  <p className="mt-0.5 text-sm text-muted">{p.category.name}</p>
+                  <p className="mt-3 font-display text-lg font-semibold text-accent">
                     {formatPrice(p.price)}
                   </p>
                 </div>
@@ -121,29 +128,29 @@ export default async function Home({ searchParams }: { searchParams: HomeSearchP
 
         {/* 分页 */}
         {totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-center gap-4">
+          <div className="mt-10 flex items-center justify-center gap-4">
             {page > 1 ? (
               <Link
                 href={buildHref({ q, category, page: String(page - 1) })}
-                className="rounded border px-4 py-2"
+                className="rounded-lg border border-line bg-white px-4 py-2 transition-colors hover:border-primary/40"
               >
                 上一页
               </Link>
             ) : (
-              <span className="rounded border px-4 py-2 text-zinc-300">上一页</span>
+              <span className="rounded-lg border border-line px-4 py-2 text-muted/40">上一页</span>
             )}
-            <span className="text-sm text-zinc-600">
+            <span className="text-sm text-muted">
               第 {page} / {totalPages} 页（共 {total} 件）
             </span>
             {page < totalPages ? (
               <Link
                 href={buildHref({ q, category, page: String(page + 1) })}
-                className="rounded border px-4 py-2"
+                className="rounded-lg border border-line bg-white px-4 py-2 transition-colors hover:border-primary/40"
               >
                 下一页
               </Link>
             ) : (
-              <span className="rounded border px-4 py-2 text-zinc-300">下一页</span>
+              <span className="rounded-lg border border-line px-4 py-2 text-muted/40">下一页</span>
             )}
           </div>
         )}
