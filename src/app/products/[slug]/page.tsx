@@ -12,7 +12,7 @@ export default async function ProductDetail({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const product = await getProductBySlug(decodeURIComponent(slug));
 
   if (!product || !product.isActive) {
     notFound();
@@ -26,7 +26,7 @@ export default async function ProductDetail({
       <main className="mx-auto w-full max-w-5xl px-4 py-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* 商品大图 */}
-          <div className="relative aspect-square overflow-hidden rounded border bg-zinc-100">
+          <div className="relative aspect-square overflow-hidden rounded-lg border bg-zinc-100">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}

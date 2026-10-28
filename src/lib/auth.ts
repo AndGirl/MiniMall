@@ -96,3 +96,12 @@ export async function clearSession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(SESSION_COOKIE);
 }
+
+// 要求 ADMIN 角色，返回 session；未登录或非 ADMIN 返回 null
+export async function requireAdmin(): Promise<Session | null> {
+  const session = await getSession();
+  if (!session || session.role !== ROLES.ADMIN) {
+    return null;
+  }
+  return session;
+}

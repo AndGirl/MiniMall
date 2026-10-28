@@ -51,9 +51,9 @@ export default async function Home({ searchParams }: { searchParams: HomeSearchP
             name="q"
             defaultValue={q}
             placeholder="搜索商品名称或描述"
-            className="flex-1 rounded border px-3 py-2"
+            className="flex-1 rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-zinc-300"
           />
-          <button type="submit" className="rounded bg-zinc-900 px-4 py-2 text-white">
+          <button type="submit" className="rounded-lg bg-zinc-900 px-4 py-2 text-white transition-colors hover:bg-zinc-700">
             搜索
           </button>
         </form>
@@ -90,7 +90,7 @@ export default async function Home({ searchParams }: { searchParams: HomeSearchP
               <Link
                 key={p.id}
                 href={`/products/${p.slug}`}
-                className="group block overflow-hidden rounded border"
+                className="group block overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="relative aspect-square overflow-hidden bg-zinc-100">
                   {p.imageUrl ? (

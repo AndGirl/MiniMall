@@ -49,7 +49,7 @@ export function AddToCartButton({
         type="button"
         onClick={handleAdd}
         disabled={!inStock || loading}
-        className="rounded bg-zinc-900 px-6 py-3 text-white disabled:bg-zinc-100 disabled:text-zinc-400"
+        className="rounded-lg bg-zinc-900 px-6 py-3 text-white transition-colors hover:bg-zinc-700 disabled:bg-zinc-100 disabled:text-zinc-400"
       >
         {loading ? "加入中..." : inStock ? "加入购物车" : "已售罄"}
       </button>

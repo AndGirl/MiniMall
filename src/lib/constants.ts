@@ -38,5 +38,10 @@ export function getOrderStatusLabel(status: string): string {
   return status in ORDER_STATUS_LABELS ? ORDER_STATUS_LABELS[status as OrderStatus] : status;
 }
 
+// 判断是否为合法订单状态
+export function isOrderStatus(value: unknown): value is OrderStatus {
+  return Object.values(ORDER_STATUSES).includes(value as OrderStatus);
+}
+
 // 商品列表每页条数
 export const PAGE_SIZE = 9;
