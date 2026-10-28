@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("USER") // "USER" | "ADMIN"
+  memberLevel  String   @default("NORMAL") // "NORMAL" | "XINYUE1" | "XINYUE2" | "XINYUE3"
+  totalSpent   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  cartItems CartItem[]
+  orders    Order[]
+
+  @@index([role])
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Int
+  stock       Int      @default(0)
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  categoryId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  orderNumber    String   @unique
+  userId         String
+  status         String   @default("PENDING") // "PENDING" | "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED"
+  subtotalAmount Int
+  totalAmount    Int
+  memberLevel    String   @default("NORMAL") // 下单时会员等级快照
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id          String @id @default(cuid())
+  orderId     String
+  productId   String
+  productName String
+  price       Int
+  quantity    Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+}
