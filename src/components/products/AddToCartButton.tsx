@@ -1,0 +1,59 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+// 加入购物车按钮（详情页）
+export function AddToCartButton({
+  productId,
+  slug,
+  inStock,
+}: {
+  productId: string;
+  slug: string;
+  inStock: boolean;
+}) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  async function handleAdd() {
+    setLoading(true);
+    setMessage("");
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity: 1 }),
+      });
+      const data = await res.json();
+      if (res.status === 401) {
+        router.push(`/login?next=/products/${slug}`);
+        return;
+      }
+      if (!res.ok) {
+        setMessage(data.error ?? "加入失败");
+        return;
+      }
+      setMessage("已加入购物车");
+    } catch {
+      setMessage("网络错误");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={handleAdd}
+        disabled={!inStock || loading}
+        className="rounded bg-zinc-900 px-6 py-3 text-white disabled:bg-zinc-100 disabled:text-zinc-400"
+      >
+        {loading ? "加入中..." : inStock ? "加入购物车" : "已售罄"}
+      </button>
+      {message && <p className="text-sm text-zinc-500">{message}</p>}
+    </div>
+  );
+}

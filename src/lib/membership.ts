@@ -37,3 +37,8 @@ export function computeOrderAmounts(subtotalAmount: number, discountRate: number
   const discountAmount = subtotalAmount - totalAmount;
   return { subtotalAmount, discountAmount, totalAmount };
 }
+
+// 判断是否为合法会员等级
+export function isMemberLevel(value: unknown): value is MemberLevel {
+  return Object.values(MEMBER_LEVELS).includes(value as MemberLevel);
+}

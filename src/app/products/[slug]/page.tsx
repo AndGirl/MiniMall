@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
+import { AddToCartButton } from "@/components/products/AddToCartButton";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getProductBySlug } from "@/lib/queries";
 import { formatPrice } from "@/lib/utils";
@@ -52,18 +53,7 @@ export default async function ProductDetail({
             <p className="text-zinc-600">{product.description ?? "暂无描述"}</p>
             <p className="text-sm text-zinc-500">库存：{product.stock} 件</p>
 
-            {inStock ? (
-              <div className="space-y-2">
-                <button disabled className="rounded bg-zinc-100 px-6 py-3 text-zinc-400">
-                  加入购物车
-                </button>
-                <p className="text-xs text-zinc-400">购物车功能即将上线</p>
-              </div>
-            ) : (
-              <span className="inline-block rounded bg-zinc-100 px-6 py-3 text-zinc-400">
-                已售罄
-              </span>
-            )}
+            <AddToCartButton productId={product.id} slug={product.slug} inStock={inStock} />
           </div>
         </div>
       </main>

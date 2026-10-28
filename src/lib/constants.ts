@@ -10,7 +10,7 @@ export const ORDER_STATUSES = {
   PENDING: "PENDING",
   PAID: "PAID",
   SHIPPED: "SHIPPED",
-  DELIVERED: "DELIVERED",
+  COMPLETED: "COMPLETED",
   CANCELLED: "CANCELLED",
 } as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[keyof typeof ORDER_STATUSES];
@@ -18,20 +18,25 @@ export type OrderStatus = (typeof ORDER_STATUSES)[keyof typeof ORDER_STATUSES];
 // 订单状态机：每个状态允许迁移到的下一个状态
 export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
   PENDING: ["PAID", "CANCELLED"],
-  PAID: ["SHIPPED"],
-  SHIPPED: ["DELIVERED"],
-  DELIVERED: [],
+  PAID: ["SHIPPED", "CANCELLED"],
+  SHIPPED: ["COMPLETED", "CANCELLED"],
+  COMPLETED: [],
   CANCELLED: [],
 };
 
 // 订单状态中文文案
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  PENDING: "待支付",
+  PENDING: "待付款",
   PAID: "已支付",
   SHIPPED: "已发货",
-  DELIVERED: "已收货",
+  COMPLETED: "已完成",
   CANCELLED: "已取消",
 };
+
+// 根据状态字符串返回中文标签（未知状态返回原值）
+export function getOrderStatusLabel(status: string): string {
+  return status in ORDER_STATUS_LABELS ? ORDER_STATUS_LABELS[status as OrderStatus] : status;
+}
 
 // 商品列表每页条数
 export const PAGE_SIZE = 9;

@@ -14,6 +14,9 @@ export async function SiteHeader() {
           Mini Mall
         </Link>
         <nav className="flex items-center gap-4 text-sm">
+          <Link href="/cart" className="hover:underline">
+            购物车
+          </Link>
           {user ? (
             <>
               <span>{user.name}</span>

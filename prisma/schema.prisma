@@ -76,7 +76,7 @@ model Order {
   id             String   @id @default(cuid())
   orderNumber    String   @unique
   userId         String
-  status         String   @default("PENDING") // "PENDING" | "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED"
+  status         String   @default("PENDING") // "PENDING" | "PAID" | "SHIPPED" | "COMPLETED" | "CANCELLED"
   subtotalAmount Int
   totalAmount    Int
   memberLevel    String   @default("NORMAL") // 下单时会员等级快照
