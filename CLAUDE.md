@@ -87,6 +87,12 @@ src/
     └── actions/            # Server Actions：auth/cart/order/admin
 ```
 
+## 编码约定
+
+- TypeScript 严格模式（tsconfig 已 `strict: true`；避免 `any` 和不安全类型断言）
+- UI 文案一律用中文
+- 代码注释一律用中文
+
 ## 架构约定
 
 - `app/**/page.tsx` 默认 Server Component，只做数据读取与渲染；含交互的组件标 `"use client"` 并调用 Server Action。Server Action 统一放 `src/lib/actions/**`（文件顶部 `"use server"`）。

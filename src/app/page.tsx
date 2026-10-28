@@ -1,68 +1,152 @@
 import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { getCategories, getProducts } from "@/lib/queries";
+import { formatPrice } from "@/lib/utils";
+
+type HomeSearchParams = Promise<{
+  q?: string | string[];
+  category?: string | string[];
+  page?: string | string[];
+}>;
+
+// 取重复 query 参数的第一个值
+function firstParam(v: string | string[] | undefined): string {
+  return Array.isArray(v) ? (v[0] ?? "") : (v ?? "");
+}
+
+// 构建保留现有筛选条件的分页/分类链接
+function buildHref(base: { q?: string; category?: string; page?: string }) {
+  const params = new URLSearchParams();
+  if (base.q) params.set("q", base.q);
+  if (base.category) params.set("category", base.category);
+  if (base.page && base.page !== "1") params.set("page", base.page);
+  const qs = params.toString();
+  return qs ? `/?${qs}` : "/";
+}
+
+export default async function Home({ searchParams }: { searchParams: HomeSearchParams }) {
+  const sp = await searchParams;
+  const q = firstParam(sp.q);
+  const category = firstParam(sp.category);
+  const page = Number(firstParam(sp.page) || "1") || 1;
+
+  const [{ products, total, totalPages }, categories] = await Promise.all([
+    getProducts({ search: q || undefined, category: category || undefined, page }),
+    getCategories(),
+  ]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div>
+      <SiteHeader />
+      <main className="mx-auto w-full max-w-7xl px-4 py-6">
+        <h1 className="mb-6 text-2xl font-bold">商品列表</h1>
+
+        {/* 搜索框 */}
+        <form method="get" className="mb-4 flex gap-2">
+          {category && <input type="hidden" name="category" value={category} />}
+          <input
+            type="text"
+            name="q"
+            defaultValue={q}
+            placeholder="搜索商品名称或描述"
+            className="flex-1 rounded border px-3 py-2"
+          />
+          <button type="submit" className="rounded bg-zinc-900 px-4 py-2 text-white">
+            搜索
+          </button>
+        </form>
+
+        {/* 分类标签 */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          <Link
+            href={buildHref({ q })}
+            className={`rounded-full px-3 py-1 text-sm ${
+              category ? "bg-zinc-100" : "bg-zinc-900 text-white"
+            }`}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            全部
+          </Link>
+          {categories.map((c) => (
+            <Link
+              key={c.id}
+              href={buildHref({ q, category: c.slug })}
+              className={`rounded-full px-3 py-1 text-sm ${
+                category === c.slug ? "bg-zinc-900 text-white" : "bg-zinc-100"
+              }`}
+            >
+              {c.name}（{c._count.products}）
+            </Link>
+          ))}
         </div>
+
+        {/* 商品网格 */}
+        {products.length === 0 ? (
+          <p className="py-12 text-center text-zinc-500">没有找到相关商品</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((p) => (
+              <Link
+                key={p.id}
+                href={`/products/${p.slug}`}
+                className="group block overflow-hidden rounded border"
+              >
+                <div className="relative aspect-square overflow-hidden bg-zinc-100">
+                  {p.imageUrl ? (
+                    <Image
+                      src={p.imageUrl}
+                      alt={p.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-zinc-400">
+                      暂无图片
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <p className="font-medium">{p.name}</p>
+                  <p className="text-sm text-zinc-500">{p.category.name}</p>
+                  <p className="mt-2 text-lg font-semibold text-red-600">
+                    {formatPrice(p.price)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* 分页 */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-4">
+            {page > 1 ? (
+              <Link
+                href={buildHref({ q, category, page: String(page - 1) })}
+                className="rounded border px-4 py-2"
+              >
+                上一页
+              </Link>
+            ) : (
+              <span className="rounded border px-4 py-2 text-zinc-300">上一页</span>
+            )}
+            <span className="text-sm text-zinc-600">
+              第 {page} / {totalPages} 页（共 {total} 件）
+            </span>
+            {page < totalPages ? (
+              <Link
+                href={buildHref({ q, category, page: String(page + 1) })}
+                className="rounded border px-4 py-2"
+              >
+                下一页
+              </Link>
+            ) : (
+              <span className="rounded border px-4 py-2 text-zinc-300">下一页</span>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

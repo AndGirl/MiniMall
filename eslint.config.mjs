@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // 本地配置与技能目录，不属于项目代码
+    ".claude/**",
+    ".vscode/**",
   ]),
 ]);
 
